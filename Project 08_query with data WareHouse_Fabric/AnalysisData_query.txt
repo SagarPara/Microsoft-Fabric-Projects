@@ -1,0 +1,31 @@
+-- total number of trips and total revenue by month
+SELECT 
+D.MonthName, 
+COUNT(*) AS TotalTrips, 
+SUM(T.TotalAmount) AS TotalRevenue 
+FROM dbo.Trip AS T
+JOIN dbo.[Date] AS D
+    ON T.[DateID]=D.[DateID]
+GROUP BY D.MonthName;
+
+
+-- show the avg trip duration and distance by day of the week
+SELECT
+D.DayName,
+AVG(T.TripDurationSeconds) as AvgDuration,
+AVG(T.TripDistanceMiles) as AvgDistance
+FROM dbo.Trip as T
+Join dbo.[Date] as D
+ON T.[DateID] = D.[DateID]
+Group by D.DayName;
+
+
+-- Show the Top 10 most popular pickup and dropoff locations
+SELECT TOP 10 
+    G.City, 
+    COUNT(*) AS TotalTrips 
+FROM dbo.Trip AS T
+JOIN dbo.Geography AS G
+    ON T.DropoffGeographyID=G.GeographyID
+GROUP BY G.City
+ORDER BY TotalTrips DESC;

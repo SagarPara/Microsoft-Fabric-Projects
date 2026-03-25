@@ -1,0 +1,18 @@
+-- Verify Data consistency
+
+ -- Check for trips with unusually long duration
+ SELECT COUNT(*) 
+ FROM dbo.Trip 
+ WHERE TripDurationSeconds > 86400; -- 24 hours
+
+  -- Check for trips with negative trip duration
+ SELECT COUNT(*) 
+ FROM dbo.Trip 
+ WHERE TripDurationSeconds < 0;
+
+  -- Remove trips with negative trip duration
+ DELETE FROM dbo.Trip 
+ WHERE TripDurationSeconds < 0;
+
+
+ 
