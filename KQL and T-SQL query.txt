@@ -1,0 +1,64 @@
+// Use 'project' - select the columns
+// use 'take' - select no of rows
+Bikestream
+| project Street, No_Bikes
+| take 10
+
+//Query data by using Transact-SQL
+SELECT TOP 10 * from Bikestream
+
+
+// rename column
+Bikestream
+| project Street, ["Number of Empty Docks"] = No_Empty_Docks
+| take 10
+
+// summarize data by using KQL
+Bikestream
+| summarize ["Total No of Bikes"] = sum(No_Bikes)
+
+// Run the following query to group the number of bikes by neighbourhood to determine the amount of available bikes in each neighbourhood
+Bikestream
+| summarize ["Total No of Bikes"] = sum(No_Bikes) by Neighbourhood
+| project Neighbourhood, ["Total No of Bikes"]
+
+// T-SQL
+SELECT Neighbourhood, Sum(No_Bikes) AS [Total Number of Bikes]
+FROM Bikestream
+GROUP BY Neighbourhood
+
+
+// the isempty and isnull functions to group all trips for which the neighbourhood is unknown into a Unidentified category for follow-up
+Bikestream
+| summarize ["Total No of Bikes"] = sum(No_Bikes) by Neighbourhood
+| project Neighbourhood, case(isempty( Neighbourhood) or isnull( Neighbourhood), "Unidentified", Neighbourhood), ["Total No of Bikes"]
+| sort by Neighbourhood asc;
+
+// Note that 'order by' operator works the same way as 'sort by'
+Bikestream
+| summarize ["Total No of Bikes"] = sum(No_Bikes) by Neighbourhood
+| project Neighbourhood = case(isempty( Neighbourhood) or isnull(Neighbourhood), "Unidentified", Neighbourhood), ["Total No of Bikes"]
+| order by Neighbourhood asc
+
+
+// Filter data
+Bikestream
+| where Neighbourhood == "Chelsea"
+| summarize ["Total No of Bikes"] = sum(No_Bikes) by Neighbourhood
+| project Neighbourhood = case(isempty( Neighbourhood) or isnull( Neighbourhood), "Unidentified", Neighbourhood), ["Total No of Bikes"]
+| order by Neighbourhood asc  
+
+
+
+ SELECT CASE
+          WHEN Neighbourhood IS NULL OR Neighbourhood = '' THEN 'Unidentified'
+          ELSE Neighbourhood
+        END AS Neighbourhood,
+        SUM(No_Bikes) AS [Total Number of Bikes]
+ FROM Bikestream
+ GROUP BY CASE
+            WHEN Neighbourhood IS NULL OR Neighbourhood = '' THEN 'Unidentified'
+            ELSE Neighbourhood
+          END
+ HAVING Neighbourhood = 'Chelsea'
+ ORDER BY Neighbourhood ASC;
